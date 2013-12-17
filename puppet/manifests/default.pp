@@ -43,6 +43,7 @@ class install_mysql {
   }
 
   database_user { 'rails@localhost':
+    password_hash => mysql_password('password')
     ensure  => present,
     require => Class['mysql::server']
   }
