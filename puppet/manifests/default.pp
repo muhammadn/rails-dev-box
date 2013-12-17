@@ -55,64 +55,16 @@ class install_mysql {
   package { 'libmysqlclient15-dev':
     ensure => installed
   }
-}
+  
+  package { 'libbmysqlclient-dev':
+	ensure => installed
+  }
+
 class { 'install_mysql': }
-
-# --- PostgreSQL ---------------------------------------------------------------
-
-class install_postgres {
-  class { 'postgresql': }
-
-  class { 'postgresql::server': }
-
-  pg_database { $ar_databases:
-    ensure   => present,
-    encoding => 'UTF8',
-    require  => Class['postgresql::server']
-  }
-
-  pg_user { 'rails':
-    ensure  => present,
-    require => Class['postgresql::server']
-  }
-
-  pg_user { 'vagrant':
-    ensure    => present,
-    superuser => true,
-    require   => Class['postgresql::server']
-  }
-
-  package { 'libpq-dev':
-    ensure => installed
-  }
-
-  package { 'postgresql-contrib':
-    ensure  => installed,
-    require => Class['postgresql::server'],
-  }
-}
-class { 'install_postgres': }
-
-# --- Memcached ----------------------------------------------------------------
-
-class { 'memcached': }
 
 # --- Packages -----------------------------------------------------------------
 
 package { 'curl':
-  ensure => installed
-}
-
-package { 'build-essential':
-  ensure => installed
-}
-
-package { 'git-core':
-  ensure => installed
-}
-
-# Nokogiri dependencies.
-package { ['libxml2', 'libxml2-dev', 'libxslt1-dev']:
   ensure => installed
 }
 
@@ -142,5 +94,14 @@ exec { 'install_ruby':
 
 exec { "${as_vagrant} 'gem install bundler --no-rdoc --no-ri'":
   creates => "${home}/.rvm/bin/bundle",
+  require => Exec['install_ruby']
+}
+
+exec { "${as_vagrant} 'gem install bundler --no-rdoc --no-ri'":
+  creates => "${home}/.rvm/bin/bundle",
+  require => Exec['install_ruby']
+}
+
+exec { "${as_vagrant} 'gem install rails -v '~> 3.2.15' --no-rdoc --no-ri'":
   require => Exec['install_ruby']
 }
