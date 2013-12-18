@@ -1,4 +1,3 @@
-$ar_databases = ['activerecord_unittest', 'activerecord_unittest2']
 $as_vagrant   = 'sudo -u vagrant -H bash -l -c'
 $home         = '/home/vagrant'
 
@@ -37,19 +36,13 @@ class install_mysql {
     config_hash => { 'root_password' => '' }
   }
 
-  database { $ar_databases:
-    ensure  => present,
-    charset => 'utf8',
-    require => Class['mysql::server']
-  }
-
   database_user { 'rails@localhost':
     password_hash => mysql_password('password'),
     ensure  => present,
     require => Class['mysql::server']
   }
 
-  database_grant { ['rails@localhost/activerecord_unittest', 'rails@localhost/activerecord_unittest2']:
+  database_grant { ['rails@localhost/app_development', 'rails@localhost/app_test']:
     privileges => ['all'],
     require    => Database_user['rails@localhost']
   }
@@ -100,6 +93,7 @@ exec { "${as_vagrant} 'gem install bundler --no-rdoc --no-ri'":
   require => Exec['install_ruby']
 }
 
-exec { "${as_vagrant} 'gem install rails -v '~> 3.2.15' --no-rdoc --no-ri'":
+exec { "${as_vagrant} 'gem install rails -v 3.2.16 --no-rdoc --no-ri'":
   require => Exec['install_ruby']
 }
+	
